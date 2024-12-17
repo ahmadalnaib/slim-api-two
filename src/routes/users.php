@@ -3,8 +3,8 @@
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-$app->get('/api/users', function (Request $request, Response $response, array $args) {
-    $sql = "SELECT * FROM plans";
+$app->get('/api/products', function (Request $request, Response $response, array $args) {
+    $sql = "SELECT * FROM products";
     
     try {
         $db = new DB();
@@ -33,11 +33,11 @@ $app->get('/api/users', function (Request $request, Response $response, array $a
 
 // get single user
 
-$app->get('/api/user/{id}', function (Request $request, Response $response, array $args) {
+$app->get('/api/product/{id}', function (Request $request, Response $response, array $args) {
     // $id = $args['id'];
     $id = $request->getAttribute('id');
 
-    $sql = "SELECT * FROM users WHERE id = $id";
+    $sql = "SELECT * FROM products WHERE id = $id";
     
     try {
         $db = new DB();
@@ -64,13 +64,14 @@ $app->get('/api/user/{id}', function (Request $request, Response $response, arra
 });
 
 // add user 
-$app->post('/api/user/add', function (Request $request, Response $response) {
-    $parsedBody = $request->getParsedBody();
-    $name = $parsedBody['name'];
-    $price_id = $parsedBody['price_id'];
+$app->post('/api/product/add', function (Request $request, Response $response) {
+    // $parsedBody = $request->getParsedBody();
+    $data = json_decode($request->getBody(), true);
+    $title = $data['title'];
+
 
     
-    $sql = "INSERT INTO plans (name, price_id) VALUES (:name,:price_id)";
+    $sql = "INSERT INTO products (title) VALUES (:title)";
     
     try {
         $db = new DB();
@@ -78,12 +79,12 @@ $app->post('/api/user/add', function (Request $request, Response $response) {
         
         // Execute the query and fetch the results
         $stmt = $db->prepare($sql);
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':price_id', $price_id);
+        $stmt->bindParam(':title', $title);
+
 
         $stmt->execute();
         
-        $response->getBody()->write('{"notice": {"text": "User added"}}');
+        $response->getBody()->write('{"notice": {"text": "Product added"}}');
         
         // Return the response
         return $response->withHeader('Content-Type', 'application/json');
@@ -98,14 +99,14 @@ $app->post('/api/user/add', function (Request $request, Response $response) {
 });
 
 // update user
-$app->put('/api/user/update/{id}', function (Request $request, Response $response, array $args) {
+$app->put('/api/product/update/{id}', function (Request $request, Response $response, array $args) {
     // $id = $args['id'];
     $id = $request->getAttribute('id');
-    $parsedBody = $request->getParsedBody();
-    $name = $parsedBody['name'];
-    $price_id = $parsedBody['price_id'];
+    $data = json_decode($request->getBody(), true);
+    $title = $data['title'];
 
-    $sql = "UPDATE plans SET name = :name, price_id = :price_id WHERE id = $id";
+
+    $sql = "UPDATE products SET title = :title WHERE id = $id";
     
     try {
         $db = new DB();
@@ -113,8 +114,8 @@ $app->put('/api/user/update/{id}', function (Request $request, Response $respons
         
         // Execute the query and fetch the results
         $stmt = $db->prepare($sql);
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':price_id', $price_id);
+        $stmt->bindParam(':title', $title);
+       
 
         $stmt->execute();
         
@@ -133,11 +134,11 @@ $app->put('/api/user/update/{id}', function (Request $request, Response $respons
 });
 
 // delete user
-$app->delete('/api/user/delete/{id}', function (Request $request, Response $response, array $args) {
+$app->delete('/api/product/delete/{id}', function (Request $request, Response $response, array $args) {
     // $id = $args['id'];
     $id = $request->getAttribute('id');
 
-    $sql = "DELETE FROM plans WHERE id = $id";
+    $sql = "DELETE FROM products WHERE id = $id";
     
     try {
         $db = new DB();
